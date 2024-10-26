@@ -2,7 +2,8 @@ import os
 import csv
 from tabulate import tabulate
 
-class PriceMachine():
+
+class PriceMachine:
     
     def __init__(self):
         self.data = []
