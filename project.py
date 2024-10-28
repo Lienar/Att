@@ -148,7 +148,7 @@ class PriceMachine:
 
 
 pm = PriceMachine()
-pm.load_prices('F:\\Users\\Attestat\\data')
+pm.load_prices(f'{os.path.dirname(__file__)}\\data')
 text = " "
 '''Инициализация исходных данных'''
 while text != 'exit':
