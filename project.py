@@ -11,14 +11,19 @@ class PriceMachine:
         self.name_length = 0
 
     def load_prices(self, file_path=''):
+        '''Загрузка и обработка базовой таблицы данных'''
         file_names = []
         for file_name in os.listdir(file_path):
             if os.path.isfile(os.path.join(file_path, file_name)):
                 if 'price' in file_name:
                     file_names.append(file_name)
+        '''Составление списка обрабатывемых данных'''
 
+        data_temp  = []
         data_temp2 = []
         data_temp3 = []
+        file_name_index = 0
+        '''Инициализация вспомогательных переменных'''
 
         for file in file_names:
             with open(f"{file_path}\\{file}", "r", encoding="utf-8", ) as csvfile:
@@ -27,15 +32,15 @@ class PriceMachine:
                     data_temp3.append(row)
                 data_temp2.append(data_temp3)
                 data_temp3 = []
-
-        data_temp = []
-        file_name_index = 0
+        '''Загрузка всех данных из файлов'''
+        
         for data in data_temp2:
             i_index = self._search_product_price_weight(data[0])
             i_name = i_index[0]
             i_cost = i_index[1]
             i_weight = i_index[2]
             temp_name = data[0][i_name]
+        '''Поиск индексов заданых столбцов в загруженных данных'''
             for item in data:
                 if temp_name != item[i_name]:
                     cost_per_kg = float('{:.2f}'.format(int(item[i_cost]) / int(item[i_weight])))
@@ -43,6 +48,7 @@ class PriceMachine:
                                   cost_per_kg]
                     data_temp.append(data_temp4)
             file_name_index += 1
+        '''Удаление лишних данных'''
 
         for i in range(0, len(data_temp)):
             for j in range(0, len(data_temp) - i - 1):
@@ -50,37 +56,19 @@ class PriceMachine:
                     tempo = data_temp[j]
                     data_temp[j] = data_temp[j + 1]
                     data_temp[j + 1] = tempo
+        '''Сортировка данных по задонному параметру'''
 
         for i in range(0, len(data_temp)):
             temp = data_temp[i].copy()
             data_temp[i] = [i+1]
             data_temp[i].extend(temp)
+        '''Добовление индекса строк'''
 
         self.data = data_temp.copy()
-        # with open('eggs.csv', newline='') as csvfile:
-        '''
-            Сканирует указанный каталог. Ищет файлы со словом price в названии.
-            В файле ищет столбцы с названием товара, ценой и весом.
-            Допустимые названия для столбца с товаром:
-                товар
-                название
-                наименование
-                продукт
-                
-            Допустимые названия для столбца с ценой:
-                розница
-                цена
-                
-            Допустимые названия для столбца с весом (в кг.)
-                вес
-                масса
-                фасовка
-        '''
+        
         
     def _search_product_price_weight(self, headers):
-        '''
-            Возвращает номера столбцов
-        '''
+        '''Возвращает номера столбцов'''
         costs = ['розница', 'цена']
         names = ['товар', 'название', 'наименование', 'продукт']
         weights = ['вес', 'масса', 'фасовка']
@@ -102,8 +90,8 @@ class PriceMachine:
         return i_index
 
 
-
-    def export_to_html(self, fname='output.html'):
+     def export_to_html(self, fname='output.html'):
+        '''Запись данных в файл в формате HTML'''
         result = '''<!DOCTYPE html>
 <html>
     <head>
@@ -121,6 +109,7 @@ class PriceMachine:
                 <th>Цена за кг.</th>
             </tr>
             '''
+        '''Создание заголовка таблици для сохранения в файл'''
         for item in self.data:
             if item[1] != 'наименование':
                 value, product_name, price, weight, file_name, cost_per_kg = item
@@ -139,12 +128,16 @@ class PriceMachine:
         result += '\t' + '\t' + '</table>' + '\n'
         result += '\t' + '</body>' + '\n'
         result += '</html>'
+        '''Подготовка данных к записи в файл'''
 
         with open(f"{fname}", "w", encoding="utf-8", ) as fd:
             fd.write(result)
+        '''Запись данных'''
         return (fname)
     
+
     def find_text(self, text):
+        '''Создание выборки данных по заданному слову'''
         headers = ['№', 'наименование', 'цена', 'фасовка', 'файл', 'цена за кг']
         data_temp5 = []
         for data in self.data:
@@ -157,6 +150,7 @@ class PriceMachine:
 pm = PriceMachine()
 pm.load_prices('F:\\Users\\Attestat\\data')
 text = " "
+'''Инициализация исходных данных'''
 while text != 'exit':
     print('------------------------------------------------------------------------')
     print('| для поиска данных укажите часть названия продукта в строке для ввода |')
@@ -168,9 +162,6 @@ while text != 'exit':
         pm.export_to_html()
     elif text != 'exit':
         pm.find_text(text)
-
-'''
-    Логика работы программы
-'''
+'''Логика работы программы'''
 print('the end')
 print(pm.export_to_html())
